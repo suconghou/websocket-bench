@@ -55,12 +55,6 @@ func connect() {
 	}
 	n = atomic.AddInt64(&success, 1)
 	a := atomic.AddInt64(&alive, 1)
-	if n%100 == 0 {
-		log.Printf("success %d ", n)
-	}
-	if a%100 == 0 {
-		log.Printf("alive %d ", a)
-	}
 	defer func() {
 		a := atomic.AddInt64(&alive, -1)
 		if a%100 == 0 {
@@ -68,12 +62,21 @@ func connect() {
 		}
 	}()
 	sIndex := strconv.Itoa(rand.Intn(10))
-	c.WriteMessage(websocket.TextMessage, []byte("{\"listen\":true,\"event\":\"v-"+sIndex+"\"}"))
+	err = c.WriteMessage(websocket.TextMessage, []byte("{\"listen\":true,\"event\":\"v-"+sIndex+"\"}"))
+	if err != nil {
+		log.Printf("msg error %s", err)
+	}
+	if n%100 == 0 {
+		log.Printf("success %d ", n)
+	}
+	if a%100 == 0 {
+		log.Printf("alive %d ", a)
+	}
 	for {
+		time.Sleep(time.Minute)
 		err = c.WriteControl(websocket.PingMessage, nil, time.Now().Add(time.Second*5))
 		if err != nil {
 			return
 		}
-		time.Sleep(time.Minute)
 	}
 }
