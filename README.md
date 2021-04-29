@@ -12,14 +12,14 @@ sysctl -w net.ipv4.tcp_tw_recycle=1
 
 建立一万链接 
 
-./bench -addr ws://172.168.1.5:6060/ws/live1/12 -num 10000
+./bench -addr ws://192.168.0.5:6060/ws/live1/12 -num 10000
 
 批量测压
 
 ```bash
 for (( c=0; c<3; c++ ))
 do
-    docker run --name ws$c -v $(pwd)/bench:/bench -d alpine /bench -addr=ws://172.168.1.5:6060/ws/live$c/1$c -num=30000
+    docker run --name ws$c -v $(pwd)/bench:/bench -d alpine /bench -addr=ws://192.168.0.5:6060/ws/live$c/1$c -num=30000
 done
 
 ```

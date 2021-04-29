@@ -35,7 +35,7 @@ Example usage: ./bench -addr=ws://127.0.0.1:6060 -num=1000
 	log.Printf("Connecting to %s", target)
 	for i := 0; i < *connections; i++ {
 		go connect()
-		time.Sleep(time.Millisecond)
+		time.Sleep(time.Millisecond * 5)
 	}
 	time.Sleep(time.Hour)
 }
@@ -48,9 +48,7 @@ func connect() {
 	c, _, err := websocket.DefaultDialer.Dial(*addr, nil)
 	if err != nil {
 		n := atomic.AddInt64(&fail, 1)
-		if n%100 == 0 {
-			log.Printf("fail %d %s", n, err)
-		}
+		log.Printf("fail %d %s", n, err)
 		return
 	}
 	n = atomic.AddInt64(&success, 1)
@@ -72,10 +70,19 @@ func connect() {
 	if a%100 == 0 {
 		log.Printf("alive %d ", a)
 	}
+	go func() {
+		for {
+			if _, _, err := c.ReadMessage(); err != nil {
+				log.Print(err)
+				return
+			}
+		}
+	}()
 	for {
 		time.Sleep(time.Minute)
 		err = c.WriteControl(websocket.PingMessage, nil, time.Now().Add(time.Second*5))
 		if err != nil {
+			log.Print(err)
 			return
 		}
 	}
