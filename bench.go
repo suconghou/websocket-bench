@@ -54,6 +54,7 @@ func connect() {
 	n = atomic.AddInt64(&success, 1)
 	a := atomic.AddInt64(&alive, 1)
 	defer func() {
+		c.Close()
 		a := atomic.AddInt64(&alive, -1)
 		if a%100 == 0 {
 			log.Printf("alive %d ", n)
